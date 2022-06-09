@@ -5,14 +5,14 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import me.vlasoff.diplombackend.utils.Constants
 import me.vlasoff.diplombackend.utils.getNumber
-
+import me.vlasoff.diplombackend.utils.pMap
 
 class ProgramsParser(
-    private val univerId: Int
+    private val url: String
 ) {
-    val doc = Jsoup.connect(Constants.BASE_URL + univerId + Constants.PROGRAM).get()
+    private val doc = Jsoup.connect(Constants.BASE_URL + url).get()
 
-     fun parse(): List<Program> {
+    fun parse(): List<Program> {
         val pagination = doc.select("ul.pagination > li")
         return if (pagination.isNotEmpty()) {
             val res = mutableListOf<Program>()
@@ -26,8 +26,8 @@ class ProgramsParser(
         }
     }
 
-    fun parsePage(page: Int): List<Program> {
-        val document = Jsoup.connect(Constants.BASE_URL + univerId + Constants.PROGRAM + "?page=$page").get()
+    private fun parsePage(page: Int): List<Program> {
+        val document = Jsoup.connect(Constants.BASE_URL + url + "?page=$page").get()
         return document.select("div.itemSpecAll").map { item ->
             var program: Program
             val title = item.select("a.spectittle")[0].ownText()
@@ -48,14 +48,13 @@ class ProgramsParser(
                 val (examResultsForPaidPlaces, paidPlacesCount) = getPlacesInfo(paidItem)
 
                 program = Program(
-                    title = title,
-                    exams = exams,
-                    cost = cost,
-                    examResultsForFreePlaces = examResultsForFreePlaces,
-                    freePlaces = freePlacesCount,
-                    examResultsForPaidPlaces = examResultsForPaidPlaces,
-                    paidPlaces = paidPlacesCount,
-                    univerId = univerId
+                    title,
+                    exams,
+                    cost,
+                    examResultsForFreePlaces,
+                    freePlacesCount,
+                    examResultsForPaidPlaces,
+                    paidPlacesCount,
                 )
             }
             program

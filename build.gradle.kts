@@ -29,7 +29,9 @@ dependencies {
     implementation ("org.jsoup:jsoup:1.14.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1")
 
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa:2.7.0")
+    // mongo
+    implementation("org.springframework.boot:spring-boot-starter-data-mongodb:2.7.0")
+
 
 }
 

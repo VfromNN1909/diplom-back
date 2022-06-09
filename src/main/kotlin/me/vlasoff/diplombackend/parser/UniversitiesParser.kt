@@ -1,28 +1,45 @@
+package me.vlasoff.diplombackend.parser
+
 import me.vlasoff.diplombackend.models.parser.University
 import me.vlasoff.diplombackend.utils.Constants
 import me.vlasoff.diplombackend.utils.getNumber
+import me.vlasoff.diplombackend.utils.pMap
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 
-class UniversitiesParser {
+class UniversitiesParser(
+    private val city: String? = null,
+    private val vuz: String? = null
+) {
     fun parse(): List<University> {
         val allUniversities = mutableListOf<University>()
-        (1..50).forEach { page ->
-            allUniversities.addAll(parsePage(page))
+        var currentPage = 1
+        while (true) {
+            val parsedUniversities = parsePage(currentPage)
+            if (!parsedUniversities.isNullOrEmpty()) {
+                allUniversities.addAll(parsedUniversities)
+                currentPage++
+            } else {
+                break
+            }
         }
-        println(allUniversities.size)
+        println(allUniversities)
         return allUniversities
     }
 
-    private fun parsePage(page: Int): List<University> {
-        val document = Jsoup.connect(Constants.BASE_URL + "?page=$page").get()
+    private fun parsePage(page: Int): List<University>? {
+        val url = buildUrl(page)
+        println(url)
+        val document = Jsoup.connect(url).get()
         val universities = document.select("div.vuzesfullnorm").map { universityCard ->
             val title = universityCard.select("div.itemVuzTitle").text()
             val city = universityCard.select("h6.fitemVv > i").text()
 
             val infoLinkElement = universityCard.select("div.col-md-7 > a")[0]
-            val infoLink = getNumber(infoLinkElement.attr("href"))
+            val infoLink = infoLinkElement.attr("href")
             val logoUrl = infoLinkElement.child(0).attr("src")
+
+            val specialitiesShortDescription = universityCard.select("div.clearfix.opisItemVV").text()
 
             val numbersCard = universityCard.select("div.col-md-5 > div.col-md-4.info")
 
@@ -34,15 +51,20 @@ class UniversitiesParser {
             val (examResultsForPaidPlaces, paidPlacesCount) = getPlacesInfo(paidItem)
 
             University(
-                id = infoLink!!.toLong(),
                 title = title,
+                specialitiesShortDescription = specialitiesShortDescription,
                 city = city,
                 logoUrl = logoUrl,
                 cost = cost,
                 examResultsForFreePlaces = examResultsForFreePlaces,
                 freePlaces = freePlacesCount,
                 examResultsForPaidPlaces = examResultsForPaidPlaces,
-                paidPlaces = paidPlacesCount
+                paidPlaces = paidPlacesCount,
+                infoLink = infoLink,
+                info = UniversityInfoParser(infoLink).parse(),
+                specialities = SpecialitiesParser(infoLink).parse(),
+                programs = ProgramsParser(infoLink).parse(),
+//                professions = ProfessionsParser(infoLink).parse()
             )
         }
         return universities
@@ -58,4 +80,13 @@ class UniversitiesParser {
         }
     }
 
+    private fun buildUrl(page: Int): String {
+        return if (city != null && vuz == null) {
+            Constants.BASE_URL + city + Constants.PAGE + page
+        } else if (city == null && vuz != null) {
+            Constants.BASE_URL + Constants.UNIVERSITY + vuz + Constants.PAGE + page
+        } else {
+            ""
+        }
+    }
 }

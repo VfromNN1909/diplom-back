@@ -1,13 +1,16 @@
+package me.vlasoff.diplombackend.parser
+
 import me.vlasoff.diplombackend.models.parser.Speciality
 import me.vlasoff.diplombackend.utils.Constants
 import me.vlasoff.diplombackend.utils.getNumber
+import me.vlasoff.diplombackend.utils.pMap
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 
 class SpecialitiesParser(
-    private val univerId: Int
+    private val url: String
 ) {
-    private val doc = Jsoup.connect(Constants.BASE_URL + univerId + Constants.SPECIALITY).get()
+    private val doc = Jsoup.connect(Constants.BASE_URL + url).get()
 
     fun parse(): List<Speciality> {
         val pagination = doc.select("ul.pagination > li")
@@ -24,13 +27,17 @@ class SpecialitiesParser(
     }
 
     private fun parseSpecialitiesInPage(page: Int): List<Speciality> {
-        val document = Jsoup.connect(Constants.BASE_URL + univerId + Constants.SPECIALITY + "?page=$page").get()
+        val document = Jsoup.connect(Constants.BASE_URL + url + "?page=$page").get()
         return document.select("div.itemSpecAll").map { specialityItem ->
             var speciality: Speciality
             val title = specialityItem.select("a.spectittle")[0].ownText()
             val degreeAndForms = specialityItem.select("div.itemSpecAllinfo > div > i")[0].ownText().split("|")
             val degree = degreeAndForms[0]
-            val forms = degreeAndForms[1].split(",")
+            val forms = try {
+                degreeAndForms[1].split(",")
+            } catch (ex: Exception) {
+                emptyList()
+            }
             val exams = if (specialityItem.select("div.egeInVuzProg > span")
                     .isNullOrEmpty()
             ) emptyList() else specialityItem.select("div.egeInVuzProg >  span")[0].ownText().split(",", "/")
@@ -57,8 +64,8 @@ class SpecialitiesParser(
                     freePlacesCount,
                     examResultsForPaidPlaces,
                     paidPlacesCount,
-                    univerId
-                )
+
+                    )
             }
             speciality
         }.filter { it != Speciality.notActual() }

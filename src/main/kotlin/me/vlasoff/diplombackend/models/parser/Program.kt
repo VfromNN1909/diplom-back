@@ -8,7 +8,6 @@ data class Program(
     val freePlaces: Int?,
     val examResultsForPaidPlaces: Int?,
     val paidPlaces: Int?,
-    val univerId: Int,
 ): Institution {
     companion object {
         fun notActual(): Program {
@@ -20,7 +19,6 @@ data class Program(
                 freePlaces = null,
                 examResultsForPaidPlaces = null,
                 paidPlaces = null,
-                univerId = -1
             )
         }
 

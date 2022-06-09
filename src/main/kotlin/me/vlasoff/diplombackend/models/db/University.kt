@@ -1,13 +1,11 @@
 package me.vlasoff.diplombackend.models.db
 
-import javax.persistence.*
+import org.bson.types.ObjectId
+import org.springframework.data.mongodb.core.mapping.Document
+import javax.persistence.Id
 
-@Entity
-@Table(name = "university")
+@Document(collection = "universities")
 data class University(
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long,
     val title: String, //
     val specialitiesShortDescription: String,
     val city: String, //
@@ -18,13 +16,10 @@ data class University(
     val examResultsForPaidPlaces: Int?,//
     val paidPlaces: Int?,//
     val infoLink: String, //
-    @OneToOne(cascade = [CascadeType.ALL])
-    @JoinColumn(name = "universityId", referencedColumnName = "id")
     val info: UniversityInfo,
-    @OneToMany(cascade = [CascadeType.ALL])
-    @JoinColumn(name = "univerId",  referencedColumnName = "id")
     val specialities: List<Speciality>,
-    @OneToMany(cascade = [CascadeType.ALL])
-    @JoinColumn(name = "univerId",  referencedColumnName = "id")
     val programs: List<Program>,
-)
+) {
+    @Id
+    var id: ObjectId = ObjectId()
+}

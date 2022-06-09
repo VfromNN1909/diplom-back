@@ -1,13 +1,10 @@
 package me.vlasoff.diplombackend.models.db
 
+import org.bson.types.ObjectId
+import org.springframework.data.mongodb.core.mapping.Document
 import javax.persistence.*
 
-@Entity
-@Table(name = "univer_info")
 data class UniversityInfo(
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long,
     val fullName: String,
     val hasDormitory: Boolean,
     val isGovernmental: Boolean,
@@ -19,5 +16,4 @@ data class UniversityInfo(
     val address: String,
     val email: String,
     val cite: String,
-    val universityId: Int,
 )

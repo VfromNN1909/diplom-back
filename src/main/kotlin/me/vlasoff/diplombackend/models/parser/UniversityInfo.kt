@@ -12,5 +12,4 @@ data class UniversityInfo(
     val address: String,
     val email: String,
     val cite: String,
-    val universityId: Int,
 )

@@ -10,7 +10,6 @@ data class Speciality(
     val freePlaces: Int?,
     val examResultsForPaidPlaces: Int?,
     val paidPlaces: Int?,
-    val univerId: Int,
 ) : Institution {
     companion object {
         fun notActual(): Speciality {
@@ -24,7 +23,6 @@ data class Speciality(
                 freePlaces = null,
                 examResultsForPaidPlaces = null,
                 paidPlaces = null,
-                univerId = -1
             )
         }
     }

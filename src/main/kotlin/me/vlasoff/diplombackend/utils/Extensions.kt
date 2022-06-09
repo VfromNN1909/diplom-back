@@ -2,7 +2,7 @@ package me.vlasoff.diplombackend.utils
 
 import kotlinx.coroutines.*
 
-suspend fun <A, B> Iterable<A>.pmap(block: suspend (A) -> B): List<B> = coroutineScope {
+suspend fun <A, B> Iterable<A>.pMap(block: suspend (A) -> B): List<B> = coroutineScope {
     return@coroutineScope map { async { block(it) } }.awaitAll()
 }
 
